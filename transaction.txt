@@ -1,0 +1,7 @@
+O 1256 3029 
+Mouse 1 29.99
+Monitor 1 160.56
+Speakers 2 100.32
+Flashdrive 4 40.45
+Laptop Bag 1 25.33 
+

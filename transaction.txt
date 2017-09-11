@@ -1,7 +1,7 @@
-O 1256 3029 
-Mouse 1 29.99
-Monitor 1 160.56
-Speakers 2 100.32
-Flashdrive 4 40.45
-Laptop Bag 1 25.33 
+1256 3029 
+O Mouse 1 29.99
+O Monitor 1 160.56
+P 25.33 
+O Speakers 2 100.32
+P 40.45
 

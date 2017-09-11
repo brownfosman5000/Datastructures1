@@ -1,0 +1,5 @@
+Customer(name and 4 digit custid) has balance
+	for each of these transactions(4 digit number transid) add or subtract to balance	
+		customer orders items so add to the balance
+		customer pays so subtract from balance
+	return the balance to the master file and update it

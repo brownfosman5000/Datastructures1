@@ -4,4 +4,51 @@ O 1023 Monitor 1 160.56
 P 2592 25.33 
 O 1401 Speakers 2 100.32
 P 2310 40.45
+2457
+O 2310 Computer_Charger 15.32
+P 2501 54.21
+P 2849 20.59
+O 3585 Watch 20.12
+P 1213 10.23
+
+
+2905
+O 2310 Computer_Charger 15.32
+P 2501 54.21
+P 2849 20.59
+O 3585 Watch 20.12
+O 1213 Phone_Case 10.23
+
+
+3340
+O 2310 Computer_Charger 15.32
+P 2501 54.21
+P 2849 20.59
+O 3585 Watch 20.12
+O 1213 Phone_Case 10.23
+
+
+3821
+O 2310 Computer_Charger 15.32
+P 2501 54.21
+P 2849 20.59
+O 3585 Watch 20.12
+P 1213 10.23
+
+
+4251
+O 2310 Computer_Charger 15.32
+P 2501 54.21
+P 2849 20.59
+O 3585 Watch 20.12
+O 1213 Phone_Case 10.23
+
+
+5903
+O 2310 Computer_Charger 15.32
+P 2501 54.21
+P 2849 20.59
+O 3585 Watch 20.12
+O 1213 Phone_Case 10.23
+
 

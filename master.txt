@@ -1,7 +1,7 @@
-1256 John Doe 202.97
-2457 Pat Richards 50.28
-2905 Foster Brown 300.85
-3340 Celine Sanders 40.42
-3821 Denzel Jackson 103.60
-4251 Rachel Thompson 262.32
-5903 Claire Rosen 365.32 
+1256 John_Doe 202.97
+2457 Pat_Richards 500.28
+2905 Foster_Brown 300.85
+3340 Celine_Sanders 423.42
+3821 Denzel_Jackson 703.60
+4251 Rachel_Thompson 262.32 
+5903 Claire_Rosen 365.32

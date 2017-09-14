@@ -22,44 +22,50 @@ int getNumberLines(ifstream&);
 void getAllCustomerInfo(ifstream&,Customer[],const int);
 
 void processTransactions(Customer, Record);
-void printRecordInfo(Record);
+void customerInvoice(Customer,Record[],double);
 
 
-void processCustomer(ifstream&, const int,Customer[], Record);
+void processCustomer(ifstream&,Customer, Record[]);
 
 int main(){
 	ifstream master_in,transaction_in;
-	string cpmaster = "cpmaster.txt";string transaction = "transaction.txt";
-	int num_customers;
-	Record customer_record;
+	string master = "master.txt";string transaction = "transaction.txt";
+	int num_customers, num_transactions;
 	
-	master_in.open(cpmaster.c_str()); 	
+	master_in.open(master.c_str()); 	
 	transaction_in.open(transaction.c_str()); 	
 
-	checkOpen(master_in,cpmaster);
+	checkOpen(master_in,master);
 	checkOpen(transaction_in,transaction);		
 	
 	//Get number of customers	
 	num_customers = getNumberLines(master_in);
-
+	num_transactions = getNumberLines(transaction_in);
 	Customer customer_arr[num_customers];	
+	Record customer_record[num_transactions];
 
 	getAllCustomerInfo(master_in,customer_arr,num_customers);
 
 	for(int current_customer = 0;current_customer<num_customers;current_customer++)
-		processCustomer(transaction_in,current_customer,customer_arr,customer_record); 
+		processCustomer(transaction_in,customer_arr[current_customer],customer_record); 
+
 }
 
-//Get number of lines in file
+//Get number of lines in file or use upto to specify where to stop
 int getNumberLines(ifstream& fin){
 	int numlines=0;	
 	string line;
 
 	while(fin){
+		//Make sure not to read an extra line
 		getline(fin,line);
 		numlines++;
 	}
-	return numlines;
+
+	fin.clear();
+	fin.seekg(ios_base::beg);
+	//getline will return an extra line because of \n in input stream
+	return numlines-1;
 
 }
 
@@ -84,30 +90,43 @@ void getAllCustomerInfo(ifstream& fin,Customer customer_arr[],const int num_cust
 	}
 }
 
-void processCustomer(ifstream& fin, const int current_customer,Customer customer_arr[], Record customer_record){
-	int customer_number = 0;	
+//Reads in customer transaction records processes and prints an invoice for that customer
+void processCustomer(ifstream& fin, Customer customer, Record customer_record[]){
+	int customer_number;
+	double prev_balance = customer.balance;	
 	//Get number of transactions
-	int transactions = getNumberLines(fin);
+	//int num_transactions = getNumberLines(fin);
 	fin >> customer_number;
 	
-	//Var to pass around meaning current customer	
-	Customer customer = customer_arr[current_customer];
+	//If current customer number is equal to customer number just read in	
+	if (customer_number == customer.customernumber){ 
+		//Since it's one customer just use the file in the condtion
+		for(int i = 0; i<5;i++){	
+		
+			fin >> (customer_record[i]).transaction_type;
+			fin >> (customer_record[i]).transaction_num;
 
-	if (customer_number == customer.customernumber); 
-		for(int i = 0; i<transactions;i++){
-			fin >> customer_record.transaction_type;
-			fin >> customer_record.transaction_num;
-			fin >> customer_record.item;
-			fin >> customer_record.num_item;
-			fin >> customer_record.amount;
-			
-			processTransactions(customer,customer_record);	
-			printRecordInfo(customer_record);
+			if (customer_record[i].transaction_type == "P")
+				fin >> (customer_record[i]).amount;
+			else if(customer_record[i].transaction_type == "O"){
+				fin >> (customer_record[i]).item;
+				fin >> (customer_record[i]).num_item;
+				fin >> (customer_record[i]).amount;
+			}
+			processTransactions(customer,(customer_record[i]));	
+		
 		}
+		
 	}
+	else
+		cerr<<"Error customer number doesn't match customer number on the transaction record"<<endl;
+	
+	customerInvoice(customer,customer_record,prev_balance);
+}
 
+
+// Subtracts or add to balance depends on type of transaction
 void processTransactions(Customer customer, Record customer_record){
-	cout<<customer_record.transaction_type<<endl;
 	if (customer_record.transaction_type == "O")
 		customer.balance += customer_record.amount;
 
@@ -119,12 +138,11 @@ void processTransactions(Customer customer, Record customer_record){
 
 }
 
-void printRecordInfo(Record current_record ){
-	cout<<"Transaction #"<< current_record.transaction_num << current_record.item <<"$"<<current_record.amount << endl; 
-
-
+//Prints invoice to screen
+void customerInvoice(Customer customer,Record current_record[],double prev_balance ){
+	cout<<customer.name<<'\t'<<customer.customernumber<<endl;
+	cout<<prev_balance<<endl;
 
 }
-//void customerInvoice(){}
 //bool checkDuplicate(){}
 //bool checkRecords(){}

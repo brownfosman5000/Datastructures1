@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
 using namespace std;
 
 
@@ -17,11 +18,13 @@ struct Record{
 	double amount;
 
 };
-void checkOpen(const ifstream& ,const string file);
+bool checkOpen(const ifstream& ,const string file);
+bool checkDuplicate(ifstream&,string);
+
 int getNumberLines(ifstream&);
 void getAllCustomerInfo(ifstream&,Customer[],const int);
 
-void processTransactions(Customer, Record);
+void processTransactions(double&, Record);
 void customerInvoice(Customer,Record[],double);
 
 
@@ -35,9 +38,14 @@ int main(){
 	master_in.open(master.c_str()); 	
 	transaction_in.open(transaction.c_str()); 	
 
-	checkOpen(master_in,master);
-	checkOpen(transaction_in,transaction);		
-	
+	if(!checkOpen(master_in,master))
+		exit(0);		
+	if(!checkOpen(transaction_in,transaction))		
+		exit(0); 
+ 	
+	if(!checkDuplicate(master_in,master))
+		exit(0);
+
 	//Get number of customers	
 	num_customers = getNumberLines(master_in);
 	num_transactions = getNumberLines(transaction_in);
@@ -48,7 +56,7 @@ int main(){
 
 	for(int current_customer = 0;current_customer<num_customers;current_customer++)
 		processCustomer(transaction_in,customer_arr[current_customer],customer_record); 
-
+	
 }
 
 //Get number of lines in file or use upto to specify where to stop
@@ -70,7 +78,7 @@ int getNumberLines(ifstream& fin){
 }
 
 //Check if File is open
-void checkOpen(const ifstream &fin,const string file){
+bool checkOpen(const ifstream &fin,const string file){
 	
 	if(fin)
 		cout<<file<<": Opened Successfully "<<endl;
@@ -113,7 +121,7 @@ void processCustomer(ifstream& fin, Customer customer, Record customer_record[])
 				fin >> (customer_record[i]).num_item;
 				fin >> (customer_record[i]).amount;
 			}
-			processTransactions(customer,(customer_record[i]));	
+			processTransactions(customer.balance,(customer_record[i]));	
 		
 		}
 		
@@ -126,12 +134,12 @@ void processCustomer(ifstream& fin, Customer customer, Record customer_record[])
 
 
 // Subtracts or add to balance depends on type of transaction
-void processTransactions(Customer customer, Record customer_record){
+void processTransactions(double& balance , Record customer_record){
 	if (customer_record.transaction_type == "O")
-		customer.balance += customer_record.amount;
+		balance += customer_record.amount;
 
 	else if(customer_record.transaction_type == "P")
-		customer.balance -= customer_record.amount;		
+		balance -= customer_record.amount;		
 
 	else
 		cerr<<"Error Processing customer record type ---  Needs to be either 'O' or 'P'"<<endl;
@@ -141,8 +149,46 @@ void processTransactions(Customer customer, Record customer_record){
 //Prints invoice to screen
 void customerInvoice(Customer customer,Record current_record[],double prev_balance ){
 	cout<<customer.name<<'\t'<<customer.customernumber<<endl;
-	cout<<prev_balance<<endl;
+	cout<<"\t\tPrevious Balance\t$"<<prev_balance<<endl<<endl;
+	
+	for(int i = 0;i<5;i++){
+		cout<<"Transaction#: "<< (current_record[i]).transaction_num<<"\t";
+		
+		if ((current_record[i]).transaction_type == "O")
+			cout<<current_record[i].item;	
+
+		else if((current_record[i]).transaction_type == "P")
+			cout<<"Payment: ";
+
+		cout<<"\t$"<<current_record[i].amount<<endl;
+	}
+	
+	cout<<"\t\t"<<"Balance Due: \t$"<<customer.balance<<endl;	
+	
+	cout<<endl<<endl<<endl;	
 
 }
-//bool checkDuplicate(){}
+
+bool checkDuplicate(ifstream& fin,const string file){
+	string line,check;
+		
+	getline(fin,line);
+	while(fin){
+		
+		getline(fin,check);
+		if(check == line){
+			cerr<<"Error duplicate records in "<<file<<endl;
+			return false;
+		}
+		else{		
+			line = check; 	
+			return true;
+		}
+	}
+	fin.clear();
+	fin.seekg(ios_base::beg);
+	 
+
+
+}
 //bool checkRecords(){}

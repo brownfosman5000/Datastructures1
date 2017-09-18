@@ -7,7 +7,7 @@ P 2310 40.45
 
 
 2457
-O 2310 Computer_Charger 1 15.32
+O 2310 Charger 1 15.32
 P 2501 54.21
 P 2849 20.59
 O 3585 Watch 2 20.12
@@ -27,11 +27,11 @@ O 2310 Mouse 1 29.99
 P 2411 51.21
 P 2149 24.59
 O 3595 Monitor 1 160.56
-O 1213 Phone_Case 1 10.23
+O 1213 Case 1 10.23
 
 
 3821
-O 2310 Computer_Charger 1 15.32
+O 2310 Charger 1 15.32
 P 2501 41.26
 O 3585 Watch 1 20.12
 P 2849 30.59
@@ -41,15 +41,15 @@ P 1213 10.23
 4251
 O 2310 Router 1 50.12
 O 6501 Speaker 2 100.32
-O 4585 Watch 20.12
-O 6313 Phone_Case 10.23
+O 4585 Watch 2 20.12
+O 6313 Case 1 10.23
 P 2849 60.51
 
 5903
-O 2810 Computer_Charger 15.32
+O 2810 Charger 1 15.32
 P 1101 53.21
 P 8449 27.59
 O 4525 Watch 1 22.12
-O 1113 Phone_Case 1 10.23
+O 1113 Case 1 10.23
 
 

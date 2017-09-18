@@ -43,7 +43,7 @@ int main(){
 	if(!checkOpen(transaction_in,transaction))		
 		exit(0); 
  	
-	if(!checkDuplicate(master_in,master))
+	if(checkDuplicate(master_in,master))
 		exit(0);
 
 	//Get number of customers	
@@ -80,13 +80,15 @@ int getNumberLines(ifstream& fin){
 //Check if File is open
 bool checkOpen(const ifstream &fin,const string file){
 	
-	if(fin)
+	if(fin){
 		cout<<file<<": Opened Successfully "<<endl;
-
+		return true;
+	}
 	
-	else	
+	else{	
 		cout<<file<<": Failed to open Successfully "<<endl;
-
+		return false;
+	}
 }
 
 //Gets info from file to be stored in stored in each customer
@@ -155,10 +157,10 @@ void customerInvoice(Customer customer,Record current_record[],double prev_balan
 		cout<<"Transaction#: "<< (current_record[i]).transaction_num<<"\t";
 		
 		if ((current_record[i]).transaction_type == "O")
-			cout<<current_record[i].item;	
+			cout<<current_record[i].item<<"\t";	
 
 		else if((current_record[i]).transaction_type == "P")
-			cout<<"Payment: ";
+			cout<<"Payment:";
 
 		cout<<"\t$"<<current_record[i].amount<<endl;
 	}
@@ -169,25 +171,26 @@ void customerInvoice(Customer customer,Record current_record[],double prev_balan
 
 }
 
+//Check for duplicate master files
 bool checkDuplicate(ifstream& fin,const string file){
 	string line,check;
-		
+	bool isduplicate = false;	
 	getline(fin,line);
 	while(fin){
 		
 		getline(fin,check);
 		if(check == line){
 			cerr<<"Error duplicate records in "<<file<<endl;
-			return false;
+			isduplicate = true;
 		}
 		else{		
 			line = check; 	
-			return true;
+			isduplicate = false;
 		}
 	}
 	fin.clear();
 	fin.seekg(ios_base::beg);
-	 
+	return isduplicate; 
 
 
 }

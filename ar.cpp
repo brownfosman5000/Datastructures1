@@ -26,7 +26,7 @@ void getAllCustomerInfo(ifstream&,Customer[],const int);
 
 void processTransactions(double&, Record);
 void customerInvoice(Customer,Record[],double);
-
+bool match(ifstream&,ifstream&);
 
 void processCustomer(ifstream&,Customer, Record[]);
 
@@ -37,7 +37,11 @@ int main(){
 	
 	master_in.open(master.c_str()); 	
 	transaction_in.open(transaction.c_str()); 	
+	
 
+
+	if(!match(transaction_in,master_in))
+		exit(0);
 	if(!checkOpen(master_in,master))
 		exit(0);		
 	if(!checkOpen(transaction_in,transaction))		
@@ -194,4 +198,67 @@ bool checkDuplicate(ifstream& fin,const string file){
 
 
 }
-//bool checkRecords(){}
+
+
+bool match(ifstream& transactionin, ifstream& masterin){
+	string line,customer_num, customer_record;
+	int numbercustomers = getNumberLines(masterin);	
+	string customer_records[numbercustomers];
+	string customer_records_check[numbercustomers];
+
+		
+	int checkforint;
+
+
+	//Get all of customer numbers in an array
+	for(int i = 0; i<numbercustomers;i++){	
+		masterin >> customer_num;
+		customer_records[i] = customer_num;
+		getline(masterin,line);
+	}
+
+	
+		
+	int i = 0;
+	while(transactionin){
+		transactionin >> line;
+		try{	
+			
+			checkforint= stoi(line);
+			
+					
+		}
+		catch(invalid_argument &e){
+			getline(transactionin,line);
+			continue;
+		}
+
+		customer_records_check[i] = line;
+		i++;
+		
+
+		if(i == numbercustomers) break;
+
+	}
+
+
+	transactionin.clear();
+	transactionin.seekg(ios_base::beg);
+
+	masterin.clear();
+	masterin.seekg(ios_base::beg);
+
+	//Cross check arrays
+	for(int i = 0; i<numbercustomers;i++)
+		if(customer_records_check[i] == customer_records[i])
+			cout<<"Match"<<endl;
+		else{
+			cout<<"No Match for "<<customer_records_check[i]<<":"<< customer_records[i]<<endl;
+			return false;	
+		}
+			
+	return true;			
+		
+
+
+}

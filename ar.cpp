@@ -4,11 +4,7 @@
 using namespace std;
 
 
-struct Customer{
-	int customernumber;
-	string name;
-	double balance;
-};
+ifstream master_in,transaction_in;
 
 struct Record{
 	string transaction_type;
@@ -18,18 +14,28 @@ struct Record{
 	double amount;
 
 };
+
+struct Customer{
+	int customernumber;
+	string name;
+	double balance;
+	string address;
+	
+	Record *record;
+};
+
 bool checkOpen(const ifstream& ,const string file);
 bool checkDuplicate(ifstream&,string);
 
 int getNumberLines(ifstream&);
 void getAllCustomerInfo(ifstream&,Customer[],const int);
 
-void processTransactions(double&, Record);
-void customerInvoice(Customer,Record[],double);
-bool match(ifstream&,ifstream&);
+void processTransactions(Customer,int,double&);
+void customerInvoice(Customer,double);
+bool match();
 
-void processCustomer(ifstream&,Customer, Record[]);
-
+void processCustomer(ifstream&,Customer);
+void initRecords(Customer[]);
 int main(){
 	ifstream master_in,transaction_in;
 	string master = "master.txt";string transaction = "transaction.txt";
@@ -40,7 +46,7 @@ int main(){
 	
 
 
-	if(!match(transaction_in,master_in))
+	if(!match())
 		exit(0);
 	if(!checkOpen(master_in,master))
 		exit(0);		
@@ -54,15 +60,18 @@ int main(){
 	num_customers = getNumberLines(master_in);
 	num_transactions = getNumberLines(transaction_in);
 	Customer customer_arr[num_customers];	
-	Record customer_record[num_transactions];
-
+	initRecords(customer_arr);
 	getAllCustomerInfo(master_in,customer_arr,num_customers);
 
 	for(int current_customer = 0;current_customer<num_customers;current_customer++)
-		processCustomer(transaction_in,customer_arr[current_customer],customer_record); 
+		processCustomer(transaction_in,customer_arr[current_customer]); 
 	
 }
 
+void initRecords(Customer arr[]){
+	for(int i=0;i<7;i++)
+		arr[i].record = new Record[5];
+}
 //Get number of lines in file or use upto to specify where to stop
 int getNumberLines(ifstream& fin){
 	int numlines=0;	
@@ -105,29 +114,29 @@ void getAllCustomerInfo(ifstream& fin,Customer customer_arr[],const int num_cust
 }
 
 //Reads in customer transaction records processes and prints an invoice for that customer
-void processCustomer(ifstream& fin, Customer customer, Record customer_record[]){
+void processCustomer(ifstream& fin, Customer customer){
 	int customer_number;
 	double prev_balance = customer.balance;	
 	//Get number of transactions
-	//int num_transactions = getNumberLines(fin);
 	fin >> customer_number;
-	
+	fin >> customer.address;
+
 	//If current customer number is equal to customer number just read in	
 	if (customer_number == customer.customernumber){ 
 		//Since it's one customer just use the file in the condtion
 		for(int i = 0; i<5;i++){	
-		
-			fin >> (customer_record[i]).transaction_type;
-			fin >> (customer_record[i]).transaction_num;
+				
+			fin >> (customer.record[i]).transaction_type;
+			fin >> (customer.record[i]).transaction_num;
 
-			if (customer_record[i].transaction_type == "P")
-				fin >> (customer_record[i]).amount;
-			else if(customer_record[i].transaction_type == "O"){
-				fin >> (customer_record[i]).item;
-				fin >> (customer_record[i]).num_item;
-				fin >> (customer_record[i]).amount;
+			if (customer.record[i].transaction_type == "P")
+				fin >> (customer.record[i]).amount;
+			else if(customer.record[i].transaction_type == "O"){
+				fin >> (customer.record[i]).item;
+				fin >> (customer.record[i]).num_item;
+				fin >> (customer.record[i]).amount;
 			}
-			processTransactions(customer.balance,(customer_record[i]));	
+			processTransactions(customer,i, customer.balance);	
 		
 		}
 		
@@ -135,17 +144,16 @@ void processCustomer(ifstream& fin, Customer customer, Record customer_record[])
 	else
 		cerr<<"Error customer number doesn't match customer number on the transaction record"<<endl;
 	
-	customerInvoice(customer,customer_record,prev_balance);
+	customerInvoice(customer,prev_balance);
 }
 
 
 // Subtracts or add to balance depends on type of transaction
-void processTransactions(double& balance , Record customer_record){
-	if (customer_record.transaction_type == "O")
-		balance += customer_record.amount;
-
-	else if(customer_record.transaction_type == "P")
-		balance -= customer_record.amount;		
+void processTransactions(Customer customer,int current,double& balance){
+	if (customer.record[current].transaction_type== "O")
+		balance += customer.record[current].amount;
+	else if(customer.record[current].transaction_type == "P")
+		balance -= customer.record[current].amount;		
 
 	else
 		cerr<<"Error Processing customer record type ---  Needs to be either 'O' or 'P'"<<endl;
@@ -153,20 +161,20 @@ void processTransactions(double& balance , Record customer_record){
 }
 
 //Prints invoice to screen
-void customerInvoice(Customer customer,Record current_record[],double prev_balance ){
+void customerInvoice(Customer customer,double prev_balance ){
 	cout<<customer.name<<'\t'<<customer.customernumber<<endl;
 	cout<<"\t\tPrevious Balance\t$"<<prev_balance<<endl<<endl;
 	
 	for(int i = 0;i<5;i++){
-		cout<<"Transaction#: "<< (current_record[i]).transaction_num<<"\t";
+		cout<<"Transaction#: "<< (customer.record[i]).transaction_num<<"\t";
 		
-		if ((current_record[i]).transaction_type == "O")
-			cout<<current_record[i].item<<"\t";	
+		if ((customer.record[i]).transaction_type == "O")
+			cout<<customer.record[i].item<<"\t";	
 
-		else if((current_record[i]).transaction_type == "P")
+		else if((customer.record[i]).transaction_type == "P")
 			cout<<"Payment:";
 
-		cout<<"\t$"<<current_record[i].amount<<endl;
+		cout<<"\t$"<<customer.record[i].amount<<endl;
 	}
 	
 	cout<<"\t\t"<<"Balance Due: \t$"<<customer.balance<<endl;	
@@ -200,11 +208,11 @@ bool checkDuplicate(ifstream& fin,const string file){
 }
 
 
-bool match(ifstream& transactionin, ifstream& masterin){
-	string line,customer_num, customer_record;
-	int numbercustomers = getNumberLines(masterin);	
-	string customer_records[numbercustomers];
-	string customer_records_check[numbercustomers];
+bool match(){
+	string line,customer_num, currentrecord;
+	int numbercustomers = getNumberLines(master_in);	
+	string currentrecords[numbercustomers];
+	string currentrecords_check[numbercustomers];
 
 		
 	int checkforint;
@@ -212,16 +220,16 @@ bool match(ifstream& transactionin, ifstream& masterin){
 
 	//Get all of customer numbers in an array
 	for(int i = 0; i<numbercustomers;i++){	
-		masterin >> customer_num;
-		customer_records[i] = customer_num;
-		getline(masterin,line);
+		master_in >> customer_num;
+		currentrecords[i] = customer_num;
+		getline(master_in,line);
 	}
 
 	
 		
 	int i = 0;
-	while(transactionin){
-		transactionin >> line;
+	while(transaction_in){
+		transaction_in >> line;
 		try{	
 			
 			checkforint= stoi(line);
@@ -229,11 +237,11 @@ bool match(ifstream& transactionin, ifstream& masterin){
 					
 		}
 		catch(invalid_argument &e){
-			getline(transactionin,line);
+			getline(transaction_in,line);
 			continue;
 		}
 
-		customer_records_check[i] = line;
+		currentrecords_check[i] = line;
 		i++;
 		
 
@@ -242,18 +250,18 @@ bool match(ifstream& transactionin, ifstream& masterin){
 	}
 
 
-	transactionin.clear();
-	transactionin.seekg(ios_base::beg);
+	transaction_in.clear();
+	transaction_in.seekg(ios_base::beg);
 
-	masterin.clear();
-	masterin.seekg(ios_base::beg);
+	master_in.clear();
+	master_in.seekg(ios_base::beg);
 
 	//Cross check arrays
 	for(int i = 0; i<numbercustomers;i++)
-		if(customer_records_check[i] == customer_records[i])
+		if(currentrecords_check[i] == currentrecords[i])
 			cout<<"Match"<<endl;
 		else{
-			cout<<"No Match for "<<customer_records_check[i]<<":"<< customer_records[i]<<endl;
+			cout<<"No Match for "<<currentrecords_check[i]<<":"<< currentrecords[i]<<endl;
 			return false;	
 		}
 			
